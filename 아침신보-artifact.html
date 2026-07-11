@@ -1,0 +1,442 @@
+<title>아침신보 · 매일 아침 신문 요약</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --paper: #f7f5f1;
+    --paper-card: #ffffff;
+    --ink: #1c1c1c;
+    --ink-soft: #3a3a3a;
+    --muted: #6b6b6b;
+    --muted-2: #8f8a7d;
+    --rule: #d8d3c8;
+    --accent: #8a1f1f;
+    --accent-hover: #5c1414;
+    --accent-soft: #c98f8f;
+    --overlay: rgba(20, 18, 15, 0.88);
+    --shadow: rgba(28, 28, 28, 0.28);
+    --swatch-a: #e4e0d6;
+    --swatch-b: #dad5c8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #18140f;
+      --paper-card: #221d16;
+      --ink: #ece7da;
+      --ink-soft: #cfc8b8;
+      --muted: #a89f8f;
+      --muted-2: #8a8272;
+      --rule: #39332a;
+      --accent: #e0795c;
+      --accent-hover: #f0987c;
+      --accent-soft: #7d5245;
+      --overlay: rgba(0, 0, 0, 0.85);
+      --shadow: rgba(0, 0, 0, 0.5);
+      --swatch-a: #2a251d;
+      --swatch-b: #322c22;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #18140f;
+    --paper-card: #221d16;
+    --ink: #ece7da;
+    --ink-soft: #cfc8b8;
+    --muted: #a89f8f;
+    --muted-2: #8a8272;
+    --rule: #39332a;
+    --accent: #e0795c;
+    --accent-hover: #f0987c;
+    --accent-soft: #7d5245;
+    --overlay: rgba(0, 0, 0, 0.85);
+    --shadow: rgba(0, 0, 0, 0.5);
+    --swatch-a: #2a251d;
+    --swatch-b: #322c22;
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f5f1;
+    --paper-card: #ffffff;
+    --ink: #1c1c1c;
+    --ink-soft: #3a3a3a;
+    --muted: #6b6b6b;
+    --muted-2: #8f8a7d;
+    --rule: #d8d3c8;
+    --accent: #8a1f1f;
+    --accent-hover: #5c1414;
+    --accent-soft: #c98f8f;
+    --overlay: rgba(20, 18, 15, 0.88);
+    --shadow: rgba(28, 28, 28, 0.28);
+    --swatch-a: #e4e0d6;
+    --swatch-b: #dad5c8;
+  }
+
+  .asb-root { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Nanum Myeongjo', 'Batang', serif; }
+  .asb-root * { box-sizing: border-box; }
+  .asb-root a { color: var(--accent); }
+  .asb-root a:hover { color: var(--accent-hover); }
+  .asb-root ::selection { background: var(--ink); color: var(--paper); }
+
+  .asb-kicker, .asb-byline, .asb-chip, .asb-meta-cat, .asb-meta-time, .asb-summary,
+  .asb-empty, .asb-footer, .asb-term-tooltip {
+    font-family: Georgia, 'Nanum Myeongjo', 'Batang', serif;
+  }
+
+  .asb-arrow-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--ink);
+    background: var(--paper-card); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; transition: opacity .15s ease, background .15s ease, color .15s ease;
+    color: var(--ink);
+  }
+  .asb-arrow-btn:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+  .asb-arrow-btn:disabled { opacity: 0.3; cursor: default; }
+  .asb-arrow-glyph { font-size: 13px; }
+
+  .asb-cat-tab {
+    background: none; border: none; padding: 6px 2px; font-size: 15px;
+    cursor: pointer; font-family: 'Nanum Myeongjo', 'Batang', serif; color: var(--muted-2);
+    border-bottom: 2px solid transparent; transition: color .15s ease, border-color .15s ease;
+  }
+  .asb-cat-tab:hover { color: var(--ink); }
+  .asb-cat-tab.active { font-weight: 700; color: var(--ink); border-bottom-color: var(--accent); }
+
+  .asb-chip {
+    padding: 6px 14px; border-radius: 20px; border: 1px solid var(--rule);
+    background: var(--paper-card); color: var(--muted); font-size: 13px; cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .asb-chip.active { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+
+  .asb-article { padding: 26px 0; border-bottom: 1px solid var(--rule); transition: transform .15s ease; }
+  .asb-article:hover { transform: translateY(-2px); }
+
+  .asb-term {
+    position: relative; color: var(--accent); text-decoration: underline dotted;
+    text-decoration-color: var(--accent-soft); cursor: pointer;
+  }
+  .asb-term-tooltip {
+    position: absolute; bottom: calc(100% + 8px); left: 0; width: 230px;
+    background: var(--ink); color: var(--paper);
+    font-size: 12.5px; line-height: 1.55; font-weight: 400; padding: 10px 12px;
+    border-radius: 6px; box-shadow: 0 8px 24px var(--shadow); z-index: 20;
+    text-decoration: none; display: none;
+  }
+  .asb-term.open .asb-term-tooltip { display: block; }
+
+  .asb-img-slot { position: relative; width: 140px; height: 100px; flex: none; }
+  .asb-img-slot img { width: 140px; height: 100px; object-fit: cover; border-radius: 8px; display: block; }
+  .asb-zoom-btn {
+    position: absolute; top: 6px; right: 6px; width: 26px; height: 26px;
+    border-radius: 50%; border: none; background: rgba(28, 28, 28, 0.65);
+    color: #f7f5f1; font-size: 13px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; z-index: 2;
+  }
+
+  #asb-lightbox {
+    position: fixed; inset: 0; background: var(--overlay);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; cursor: zoom-out; padding: 40px;
+  }
+  #asb-lightbox.open { display: flex; }
+  #asb-lightbox img { max-width: 90vw; max-height: 88vh; border-radius: 6px; box-shadow: 0 20px 60px var(--shadow); }
+  #asb-lightbox .asb-close-btn {
+    position: fixed; top: 24px; right: 28px; width: 40px; height: 40px;
+    border-radius: 50%; border: 1px solid #f7f5f1; background: transparent;
+    color: #f7f5f1; font-size: 18px; cursor: pointer;
+  }
+
+  .asb-root button:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .asb-root * { transition: none !important; }
+  }
+</style>
+
+<div class="asb-root" style="min-height:100vh; padding-bottom:80px;">
+
+  <header style="text-align:center; padding:36px 20px 20px; border-bottom:4px double var(--ink);">
+    <div class="asb-kicker" style="font-size:12px; letter-spacing:0.3em; color:var(--accent); margin-bottom:8px;">DAILY BRIEF · 매일 아침 신문 요약</div>
+    <h1 style="font-size:56px; font-weight:900; margin:0; letter-spacing:-0.01em; text-wrap:balance;">아침신보</h1>
+    <div class="asb-byline" style="font-size:13px; color:var(--muted); margin-top:8px; font-style:italic;">바쁜 아침, 3분이면 충분한 오늘의 신문 요약</div>
+  </header>
+
+  <div style="display:flex; align-items:center; justify-content:center; gap:18px; padding:22px 20px; border-bottom:1px solid var(--rule);">
+    <button id="asbPrevBtn" class="asb-arrow-btn" aria-label="이전 날짜"><span class="asb-arrow-glyph">◀</span></button>
+    <div style="display:flex; align-items:center; gap:12px; border:1px solid var(--ink); border-radius:6px; padding:10px 22px; background:var(--paper-card);">
+      <span style="font-size:20px;">📅</span>
+      <span id="asbDateLabel" style="font-size:20px; font-weight:600; letter-spacing:0.02em; font-variant-numeric:tabular-nums;"></span>
+    </div>
+    <button id="asbNextBtn" class="asb-arrow-btn" aria-label="다음 날짜"><span class="asb-arrow-glyph">▶</span></button>
+  </div>
+
+  <div id="asbDateChips" style="display:flex; justify-content:center; gap:10px; padding:16px 20px 0; flex-wrap:wrap;"></div>
+
+  <nav id="asbCategoryTabs" style="display:flex; justify-content:center; gap:32px; padding:28px 20px 18px; border-bottom:1px solid var(--ink); flex-wrap:wrap;"></nav>
+
+  <main style="max-width:920px; margin:0 auto; padding:36px 24px 0;">
+    <div id="asbArticleList" style="display:flex; flex-direction:column; gap:0;"></div>
+    <div id="asbEmptyState" class="asb-empty" style="display:none; text-align:center; padding:80px 20px; color:var(--muted-2); font-size:16px;">
+      선택한 날짜/카테고리에 해당하는 요약 기사가 없습니다.
+    </div>
+  </main>
+
+  <footer class="asb-footer" style="text-align:center; padding:40px 20px 0; color:var(--muted-2); font-size:12px;">
+    © 2026 아침신보 · WSJ·Bloomberg 기사를 요약해 함께 싣습니다
+  </footer>
+
+</div>
+
+<div id="asb-lightbox">
+  <img id="asbLightboxImg" src="" alt="">
+  <button class="asb-close-btn" id="asbCloseLightbox" title="닫기" aria-label="닫기">✕</button>
+</div>
+
+<script>
+(function () {
+  const CATEGORIES = ['전체', '정치', '경제', '사회', '문화', '미국경제'];
+
+  const RAW = {
+    '2026-07-11': [
+      { category: '정치', time: '06:40', title: '국회, 하반기 예산안 심사 본격화', summary: '여야는 오늘부터 하반기 추가경정예산안 심사에 들어간다. 쟁점은 재정건전성과 민생지원 확대 규모로, 이번 주 내 상임위 통과를 목표로 협의가 이어질 예정이다.', hasImage: true },
+      { category: '경제', time: '06:20', title: '수출 3개월 연속 증가, 반도체가 견인', summary: '지난달 수출이 전년 대비 늘며 3개월 연속 증가세를 이어갔다. 반도체와 자동차 부문이 호조를 보였으나 내수 회복은 여전히 더딘 것으로 나타났다.', hasImage: true },
+      { category: '사회', time: '07:05', title: '폭염특보 확대, 전국 대부분 지역 영향', summary: '기상청은 오늘 낮 최고기온이 35도를 넘는 지역이 늘면서 폭염특보를 전국 대부분으로 확대했다. 야외활동과 농작업 시 수분 섭취 등 주의가 필요하다.' },
+      { category: '문화', time: '08:00', title: '지역 문학축제, 이번 주말 개막', summary: '전국 각지의 작가와 독자가 모이는 지역 문학축제가 이번 주말 시작된다. 낭독회, 북토크 등 다양한 프로그램이 마련됐다.' },
+      { category: '미국경제', time: '05:30 · WSJ', title: '美 증시, 중국發 AI 쇼크에 급락', summary: '중국의 저비용 AI 모델 공개 소식에 미국 증시가 크게 흔들렸다. 다만 시장 전문가들은 이번 조정이 미국 빅테크 기업들의 AI 경쟁력 자체를 흔들 정도는 아니라고 평가했다.', hasImage: true },
+      { category: '미국경제', time: '05:45 · WSJ', title: '커피 원두값, 美-콜롬비아 관세 갈등에 사상 최고치', summary: '아라비카 원두 가격이 미국과 콜롬비아 간 관세 분쟁 여파로 역대 최고 수준까지 치솟았다. 공급망 불안이 커지면서 당분간 가격 강세가 이어질 전망이다.' },
+      { category: '미국경제', time: '06:00 · Bloomberg', title: '머스크, 세계 첫 \'1조 달러\' 자산가 등극', summary: '일론 머스크가 보유 자산 가치 1조 달러를 넘어서며 역사상 첫 조만장자에 이름을 올렸다. 그는 자신이 최대주주로 있는 회사 경영권을 계속 유지하겠다는 뜻을 밝혔다.', hasImage: true },
+      { category: '미국경제', time: '06:15 · Bloomberg', title: 'SK하이닉스 美증시 데뷔, AI 반도체 사이클 향방 시험대', summary: 'SK하이닉스가 미국 증시에 상장하며 AI발 반도체 호황이 이어질지 가늠하는 시험대에 올랐다. 투자자들은 이번 상장을 AI 반도체 수요가 얼마나 지속될지에 대한 베팅으로 보고 있다.' },
+      { category: '미국경제', time: '06:30 · WSJ', title: '국제 금·은 시세, 안전자산 수요 주춤하며 동반 하락', summary: '국제 금 가격이 1.4% 내리며 최근 사흘 중 이틀 하락했고, 은 가격도 2.5% 떨어졌다. 안전자산 선호 심리가 다소 누그러진 영향으로 풀이된다.' },
+      { category: '미국경제', time: '06:45 · WSJ', title: '스위스 프랑·엔화 강세, AI發 증시 불안에 안전자산 부각', summary: '중국발 AI 기술주 매도 여파로 투자자들이 위험자산을 피해 스위스 프랑과 일본 엔 등 전통적 안전자산 통화로 이동하고 있다.' },
+      { category: '미국경제', time: '07:00 · WSJ', title: '건자재 유통업체 QXO, 비콘에 적대적 인수 제안', summary: '건설자재 유통업체 QXO가 경쟁사 비콘 이사회의 동의 없이 인수를 추진하며 적대적 인수전에 나섰다. 업계 재편 여부에 관심이 쏠린다.', hasImage: true },
+      { category: '미국경제', time: '07:15 · Bloomberg', title: '에니 CEO "글로벌 에너지 위기, 단기적으로 더 악화될 수도"', summary: '이탈리아 에너지기업 에니의 최고경영자가 재고 감소와 공급 경쟁 심화를 이유로 국제 에너지 시장 상황이 당분간 더 나빠질 수 있다고 경고했다.' },
+    ],
+    '2026-07-10': [
+      { category: '정치', time: '07:10', title: '지방자치단체장 간담회, 균형발전 논의', summary: '전국 지자체장들이 모여 지역 균형발전을 위한 재정 분권 방안을 논의했다. 중앙정부의 지원 확대를 요구하는 목소리가 컸다.' },
+      { category: '경제', time: '06:50', title: '기준금리 동결, 물가 안정 우선', summary: '한국은행은 기준금리를 현 수준에서 유지하기로 결정했다. 물가 안정세가 이어지고 있으나 성장 둔화 우려도 함께 언급됐다.', hasImage: true },
+      { category: '사회', time: '07:30', title: '대중교통 요금 조정안 발표', summary: '내달부터 일부 대중교통 요금이 조정된다. 시민단체는 저소득층 부담 완화를 위한 보완책 마련을 요구하고 있다.' },
+    ],
+    '2026-07-09': [
+      { category: '경제', time: '06:30', title: '중소기업 대출 문턱 낮춘다', summary: '정부는 중소기업의 자금난 해소를 위해 정책금융 지원 규모를 확대한다고 밝혔다. 신용보증 한도도 함께 상향된다.' },
+      { category: '사회', time: '07:15', title: '여름방학 앞두고 안전교육 강화', summary: '방학을 앞두고 각 학교에서 물놀이, 교통안전 등 생활안전 교육이 강화된다. 교육청은 사고 예방을 위한 자료를 배포했다.', hasImage: true },
+      { category: '문화', time: '08:20', title: '전통시장 야시장, 여름 시즌 개장', summary: '전국 주요 전통시장에서 여름 야시장이 문을 열었다. 지역 특산물과 먹거리를 즐기려는 방문객들로 활기를 띠고 있다.' },
+    ],
+  };
+
+  const DATES = Object.keys(RAW).sort();
+
+  const GLOSSARY = {
+    '추가경정예산안': '한 회계연도 중 이미 정한 예산을 변경해 추가로 편성하는 예산.',
+    '상임위': '국회에서 특정 분야의 안건을 상시적으로 심사하는 위원회.',
+    '재정건전성': '정부의 수입과 지출이 균형을 이루어 재정이 안정적으로 유지되는 상태.',
+    '반도체': '전기 신호를 제어·증폭하는 전자 부품으로, 각종 전자기기의 핵심 소재.',
+    '내수': '국내에서 이루어지는 소비와 생산 활동.',
+    '기준금리': '한국은행이 정하는 정책금리로, 시중 금리의 기준이 되는 지표.',
+    '신용보증': '금융기관 대출 시 상환을 보증기관이 대신 책임지는 제도.',
+    '정책금융': '정부가 특정 목적 달성을 위해 지원하는 금융 지원 제도.',
+    '균형발전': '지역 간 경제·사회적 격차를 줄이려는 발전 전략.',
+    '물가': '시장에서 거래되는 상품과 서비스의 평균적인 가격 수준.',
+    '폭염특보': '기상청이 발표하는, 심각한 고온 현상에 대한 경고.',
+    '관세': '수입품에 부과하는 세금으로, 국내 산업 보호나 무역 협상 수단으로 쓰인다.',
+    '조만장자': '보유 자산 가치가 1조 달러(약 1,400조 원) 이상인 사람을 가리키는 말.',
+    '적대적 인수': '대상 기업 경영진의 동의 없이 지분 매입 등을 통해 경영권을 확보하려는 인수 시도.',
+    '안전자산': '경제 위기나 시장 불안 시에도 가치가 비교적 안정적으로 유지되는 금, 국채, 특정 통화 등의 자산.',
+  };
+  const GLOSSARY_KEYS = Object.keys(GLOSSARY).sort((a, b) => b.length - a.length);
+
+  function fmtLabel(iso) {
+    const d = new Date(iso + 'T00:00:00');
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
+  }
+
+  function fmtChip(iso) {
+    const d = new Date(iso + 'T00:00:00');
+    return `${d.getMonth() + 1}/${d.getDate()}`;
+  }
+
+  function tokenize(text) {
+    if (!text) return [];
+    const escaped = GLOSSARY_KEYS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const re = new RegExp(`(${escaped.join('|')})`, 'g');
+    return text.split(re).filter(p => p !== '').map(p => ({ text: p, isTerm: !!GLOSSARY[p] }));
+  }
+
+  function placeholderSrc(label) {
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='280' height='200'>
+      <defs>
+        <pattern id='asb-s' width='16' height='16' patternTransform='rotate(45)' patternUnits='userSpaceOnUse'>
+          <rect width='16' height='16' fill='#e4e0d6'/>
+          <rect width='8' height='16' fill='#dad5c8'/>
+        </pattern>
+      </defs>
+      <rect width='280' height='200' fill='url(#asb-s)'/>
+      <text x='140' y='104' font-family='monospace' font-size='12' fill='#6b6b6b' text-anchor='middle'>${label}</text>
+    </svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+
+  const state = {
+    dateIndex: DATES.length - 1,
+    category: '전체',
+    openTermKey: null,
+  };
+
+  function setDate(i) {
+    if (i >= 0 && i < DATES.length) {
+      state.dateIndex = i;
+      state.openTermKey = null;
+      render();
+    }
+  }
+
+  function setCategory(c) {
+    state.category = c;
+    state.openTermKey = null;
+    render();
+  }
+
+  function toggleTerm(key) {
+    state.openTermKey = state.openTermKey === key ? null : key;
+    render();
+  }
+
+  function openLightbox(src) {
+    document.getElementById('asbLightboxImg').src = src;
+    document.getElementById('asb-lightbox').classList.add('open');
+  }
+
+  function closeLightbox() {
+    document.getElementById('asb-lightbox').classList.remove('open');
+    document.getElementById('asbLightboxImg').src = '';
+  }
+
+  function renderTokens(text, fieldKey) {
+    return tokenize(text).map((tok, ti) => {
+      if (!tok.isTerm) {
+        const span = document.createElement('span');
+        span.textContent = tok.text;
+        return span;
+      }
+      const key = `${fieldKey}-${ti}`;
+      const wrap = document.createElement('span');
+      wrap.className = 'asb-term' + (state.openTermKey === key ? ' open' : '');
+      wrap.textContent = tok.text;
+      wrap.addEventListener('click', (e) => { e.stopPropagation(); toggleTerm(key); });
+      const tooltip = document.createElement('span');
+      tooltip.className = 'asb-term-tooltip';
+      tooltip.textContent = GLOSSARY[tok.text];
+      wrap.appendChild(tooltip);
+      return wrap;
+    });
+  }
+
+  function render() {
+    const idx = state.dateIndex;
+    const iso = DATES[idx];
+    const hasPrev = idx > 0;
+    const hasNext = idx < DATES.length - 1;
+
+    document.getElementById('asbDateLabel').textContent = fmtLabel(iso);
+    document.getElementById('asbPrevBtn').disabled = !hasPrev;
+    document.getElementById('asbNextBtn').disabled = !hasNext;
+
+    const chipsEl = document.getElementById('asbDateChips');
+    chipsEl.innerHTML = '';
+    DATES.forEach((d, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'asb-chip' + (i === idx ? ' active' : '');
+      btn.textContent = fmtChip(d);
+      btn.addEventListener('click', () => setDate(i));
+      chipsEl.appendChild(btn);
+    });
+
+    const tabsEl = document.getElementById('asbCategoryTabs');
+    tabsEl.innerHTML = '';
+    CATEGORIES.forEach((c) => {
+      const btn = document.createElement('button');
+      btn.className = 'asb-cat-tab' + (c === state.category ? ' active' : '');
+      btn.textContent = c;
+      btn.addEventListener('click', () => setCategory(c));
+      tabsEl.appendChild(btn);
+    });
+
+    const all = RAW[iso] || [];
+    const filtered = state.category === '전체' ? all : all.filter(a => a.category === state.category);
+
+    const listEl = document.getElementById('asbArticleList');
+    const emptyEl = document.getElementById('asbEmptyState');
+    listEl.innerHTML = '';
+
+    if (filtered.length === 0) {
+      listEl.style.display = 'none';
+      emptyEl.style.display = 'block';
+    } else {
+      listEl.style.display = 'flex';
+      emptyEl.style.display = 'none';
+
+      filtered.forEach((a, i) => {
+        const articleId = `${iso}-${i}`;
+        const imageSrc = placeholderSrc(`${a.category} 기사 사진`);
+
+        const card = document.createElement('article');
+        card.className = 'asb-article';
+
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; gap:20px; align-items:flex-start;';
+
+        const textCol = document.createElement('div');
+        textCol.style.cssText = 'flex:1; min-width:0;';
+
+        const meta = document.createElement('div');
+        meta.style.cssText = 'display:flex; align-items:baseline; gap:10px; margin-bottom:8px;';
+        meta.innerHTML = `
+          <span class="asb-meta-cat" style="font-size:11px; letter-spacing:0.15em; color:var(--accent); font-weight:600;">${a.category}</span>
+          <span style="font-size:11px; color:var(--muted-2);">·</span>
+          <span class="asb-meta-time" style="font-size:12px; color:var(--muted-2); font-variant-numeric:tabular-nums;">${a.time}</span>
+        `;
+
+        const h2 = document.createElement('h2');
+        h2.style.cssText = 'font-size:24px; font-weight:700; margin:0 0 10px; line-height:1.35; text-wrap:balance;';
+        renderTokens(a.title, `${articleId}-title`).forEach(n => h2.appendChild(n));
+
+        const p = document.createElement('p');
+        p.className = 'asb-summary';
+        p.style.cssText = 'font-size:15.5px; line-height:1.75; color:var(--ink-soft); margin:0; max-width:65ch;';
+        renderTokens(a.summary, `${articleId}-summary`).forEach(n => p.appendChild(n));
+
+        textCol.appendChild(meta);
+        textCol.appendChild(h2);
+        textCol.appendChild(p);
+        row.appendChild(textCol);
+
+        if (a.hasImage) {
+          const imgSlot = document.createElement('div');
+          imgSlot.className = 'asb-img-slot';
+          const img = document.createElement('img');
+          img.src = imageSrc;
+          img.alt = '기사 사진';
+          const zoomBtn = document.createElement('button');
+          zoomBtn.className = 'asb-zoom-btn';
+          zoomBtn.title = '확대 보기';
+          zoomBtn.setAttribute('aria-label', '확대 보기');
+          zoomBtn.textContent = '🔍';
+          zoomBtn.addEventListener('click', () => openLightbox(imageSrc));
+          imgSlot.appendChild(img);
+          imgSlot.appendChild(zoomBtn);
+          row.appendChild(imgSlot);
+        }
+
+        card.appendChild(row);
+        listEl.appendChild(card);
+      });
+    }
+  }
+
+  document.getElementById('asbPrevBtn').addEventListener('click', () => setDate(state.dateIndex - 1));
+  document.getElementById('asbNextBtn').addEventListener('click', () => setDate(state.dateIndex + 1));
+  document.getElementById('asb-lightbox').addEventListener('click', closeLightbox);
+  document.getElementById('asbCloseLightbox').addEventListener('click', (e) => { e.stopPropagation(); closeLightbox(); });
+  document.getElementById('asbLightboxImg').addEventListener('click', (e) => e.stopPropagation());
+
+  render();
+})();
+</script>

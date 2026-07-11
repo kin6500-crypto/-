@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>아침신보 · 매일 아침 신문 요약</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #f7f5f1; font-family: 'Noto Serif KR', serif; }
+  a { color: #8a1f1f; }
+  a:hover { color: #5c1414; }
+  * { box-sizing: border-box; }
+  ::selection { background: #2a2a2a; color: #f7f5f1; }
+
+  .arrow-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid #1c1c1c;
+    background: #fff; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; transition: opacity .15s ease, background .15s ease;
+  }
+  .arrow-btn:hover:not(:disabled) { background: #2a2a2a; }
+  .arrow-btn:hover:not(:disabled) .arrow-glyph { color: #f7f5f1; }
+  .arrow-btn:disabled { opacity: 0.3; cursor: default; }
+  .arrow-glyph { font-size: 13px; color: #1c1c1c; transition: color .15s ease; }
+
+  .cat-tab {
+    background: none; border: none; padding: 6px 2px; font-size: 15px;
+    cursor: pointer; font-family: 'Noto Serif KR', serif; color: #8f8a7d;
+    border-bottom: 2px solid transparent; transition: color .15s ease, border-color .15s ease;
+  }
+  .cat-tab:hover { color: #2a2a2a; }
+  .cat-tab.active { font-weight: 700; color: #1c1c1c; border-bottom-color: #8a1f1f; }
+
+  .date-chip {
+    padding: 6px 14px; border-radius: 20px; border: 1px solid #d8d3c8;
+    background: #fff; color: #6b6b6b; font-size: 13px;
+    font-family: 'Source Serif 4', serif; cursor: pointer;
+  }
+  .date-chip.active { border-color: #1c1c1c; background: #1c1c1c; color: #f7f5f1; }
+
+  .article-card { padding: 26px 0; border-bottom: 1px solid #d8d3c8; transition: transform .15s ease; }
+  .article-card:hover { transform: translateY(-2px); }
+
+  .term {
+    position: relative; color: #8a1f1f; text-decoration: underline dotted;
+    text-decoration-color: #c98f8f; cursor: pointer;
+  }
+  .term-tooltip {
+    position: absolute; bottom: calc(100% + 8px); left: 0; width: 230px;
+    background: #1c1c1c; color: #f7f5f1; font-family: 'Source Serif 4', serif;
+    font-size: 12.5px; line-height: 1.55; font-weight: 400; padding: 10px 12px;
+    border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); z-index: 20;
+    text-decoration: none; display: none;
+  }
+  .term.open .term-tooltip { display: block; }
+
+  .img-slot {
+    position: relative; width: 140px; height: 100px; flex: none;
+  }
+  .img-slot img { width: 140px; height: 100px; object-fit: cover; border-radius: 8px; display: block; }
+  .zoom-btn {
+    position: absolute; top: 6px; right: 6px; width: 26px; height: 26px;
+    border-radius: 50%; border: none; background: rgba(28,28,28,0.65);
+    color: #f7f5f1; font-size: 13px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center; z-index: 2;
+  }
+
+  #lightbox {
+    position: fixed; inset: 0; background: rgba(20,18,15,0.88);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; cursor: zoom-out; padding: 40px;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox img { max-width: 90vw; max-height: 88vh; border-radius: 6px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  #lightbox .close-btn {
+    position: fixed; top: 24px; right: 28px; width: 40px; height: 40px;
+    border-radius: 50%; border: 1px solid #f7f5f1; background: transparent;
+    color: #f7f5f1; font-size: 18px; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div style="min-height:100vh; background:#f7f5f1; color:#1c1c1c; padding-bottom:80px;">
+
+  <header style="text-align:center; padding:36px 20px 20px; border-bottom:4px double #1c1c1c;">
+    <div style="font-size:12px; letter-spacing:0.3em; color:#8a1f1f; font-family:'Source Serif 4',serif; margin-bottom:8px;">DAILY BRIEF · 매일 아침 신문 요약</div>
+    <h1 style="font-size:56px; font-weight:900; margin:0; letter-spacing:-0.01em;">아침신보</h1>
+    <div style="font-size:13px; color:#6b6b6b; margin-top:8px; font-family:'Source Serif 4',serif; font-style:italic;">바쁜 아침, 3분이면 충분한 오늘의 신문 요약</div>
+  </header>
+
+  <div style="display:flex; align-items:center; justify-content:center; gap:18px; padding:22px 20px; border-bottom:1px solid #d8d3c8;">
+    <button id="prevBtn" class="arrow-btn"><span class="arrow-glyph">◀</span></button>
+    <div style="display:flex; align-items:center; gap:12px; border:1px solid #1c1c1c; border-radius:6px; padding:10px 22px; background:#fff;">
+      <span style="font-size:20px;">📅</span>
+      <span id="dateLabel" style="font-size:20px; font-weight:600; letter-spacing:0.02em;"></span>
+    </div>
+    <button id="nextBtn" class="arrow-btn"><span class="arrow-glyph">▶</span></button>
+  </div>
+
+  <div id="dateChips" style="display:flex; justify-content:center; gap:10px; padding:16px 20px 0; flex-wrap:wrap;"></div>
+
+  <nav id="categoryTabs" style="display:flex; justify-content:center; gap:32px; padding:28px 20px 18px; border-bottom:1px solid #1c1c1c; flex-wrap:wrap;"></nav>
+
+  <main style="max-width:920px; margin:0 auto; padding:36px 24px 0;">
+    <div id="articleList" style="display:flex; flex-direction:column; gap:0;"></div>
+    <div id="emptyState" style="display:none; text-align:center; padding:80px 20px; color:#8f8a7d; font-family:'Source Serif 4',serif; font-size:16px;">
+      선택한 날짜/카테고리에 해당하는 요약 기사가 없습니다.
+    </div>
+  </main>
+
+  <footer style="text-align:center; padding:40px 20px 0; color:#a19c8f; font-size:12px; font-family:'Source Serif 4',serif;">
+    © 2026 아침신보 · 예시 데이터로 구성된 프로토타입입니다
+  </footer>
+
+</div>
+
+<div id="lightbox">
+  <img id="lightboxImg" src="" alt="">
+  <button class="close-btn" id="closeLightbox" title="닫기">✕</button>
+</div>
+
+<script>
+const CATEGORIES = ['전체', '정치', '경제', '사회', '문화', '미국경제'];
+
+const RAW = {
+  '2026-07-11': [
+    { category: '정치', time: '06:40', title: '국회, 하반기 예산안 심사 본격화', summary: '여야는 오늘부터 하반기 추가경정예산안 심사에 들어간다. 쟁점은 재정건전성과 민생지원 확대 규모로, 이번 주 내 상임위 통과를 목표로 협의가 이어질 예정이다.', hasImage: true },
+    { category: '경제', time: '06:20', title: '수출 3개월 연속 증가, 반도체가 견인', summary: '지난달 수출이 전년 대비 늘며 3개월 연속 증가세를 이어갔다. 반도체와 자동차 부문이 호조를 보였으나 내수 회복은 여전히 더딘 것으로 나타났다.', hasImage: true },
+    { category: '사회', time: '07:05', title: '폭염특보 확대, 전국 대부분 지역 영향', summary: '기상청은 오늘 낮 최고기온이 35도를 넘는 지역이 늘면서 폭염특보를 전국 대부분으로 확대했다. 야외활동과 농작업 시 수분 섭취 등 주의가 필요하다.' },
+    { category: '문화', time: '08:00', title: '지역 문학축제, 이번 주말 개막', summary: '전국 각지의 작가와 독자가 모이는 지역 문학축제가 이번 주말 시작된다. 낭독회, 북토크 등 다양한 프로그램이 마련됐다.' },
+    { category: '미국경제', time: '05:30 · WSJ', title: '美 증시, 중국發 AI 쇼크에 급락', summary: '중국의 저비용 AI 모델 공개 소식에 미국 증시가 크게 흔들렸다. 다만 시장 전문가들은 이번 조정이 미국 빅테크 기업들의 AI 경쟁력 자체를 흔들 정도는 아니라고 평가했다.', hasImage: true },
+    { category: '미국경제', time: '05:45 · WSJ', title: '커피 원두값, 美-콜롬비아 관세 갈등에 사상 최고치', summary: '아라비카 원두 가격이 미국과 콜롬비아 간 관세 분쟁 여파로 역대 최고 수준까지 치솟았다. 공급망 불안이 커지면서 당분간 가격 강세가 이어질 전망이다.' },
+    { category: '미국경제', time: '06:00 · Bloomberg', title: '머스크, 세계 첫 \'1조 달러\' 자산가 등극', summary: '일론 머스크가 보유 자산 가치 1조 달러를 넘어서며 역사상 첫 조만장자에 이름을 올렸다. 그는 자신이 최대주주로 있는 회사 경영권을 계속 유지하겠다는 뜻을 밝혔다.', hasImage: true },
+    { category: '미국경제', time: '06:15 · Bloomberg', title: 'SK하이닉스 美증시 데뷔, AI 반도체 사이클 향방 시험대', summary: 'SK하이닉스가 미국 증시에 상장하며 AI발 반도체 호황이 이어질지 가늠하는 시험대에 올랐다. 투자자들은 이번 상장을 AI 반도체 수요가 얼마나 지속될지에 대한 베팅으로 보고 있다.' },
+    { category: '미국경제', time: '06:30 · WSJ', title: '국제 금·은 시세, 안전자산 수요 주춤하며 동반 하락', summary: '국제 금 가격이 1.4% 내리며 최근 사흘 중 이틀 하락했고, 은 가격도 2.5% 떨어졌다. 안전자산 선호 심리가 다소 누그러진 영향으로 풀이된다.' },
+    { category: '미국경제', time: '06:45 · WSJ', title: '스위스 프랑·엔화 강세, AI發 증시 불안에 안전자산 부각', summary: '중국발 AI 기술주 매도 여파로 투자자들이 위험자산을 피해 스위스 프랑과 일본 엔 등 전통적 안전자산 통화로 이동하고 있다.' },
+    { category: '미국경제', time: '07:00 · WSJ', title: '건자재 유통업체 QXO, 비콘에 적대적 인수 제안', summary: '건설자재 유통업체 QXO가 경쟁사 비콘 이사회의 동의 없이 인수를 추진하며 적대적 인수전에 나섰다. 업계 재편 여부에 관심이 쏠린다.', hasImage: true },
+    { category: '미국경제', time: '07:15 · Bloomberg', title: '에니 CEO "글로벌 에너지 위기, 단기적으로 더 악화될 수도"', summary: '이탈리아 에너지기업 에니의 최고경영자가 재고 감소와 공급 경쟁 심화를 이유로 국제 에너지 시장 상황이 당분간 더 나빠질 수 있다고 경고했다.' },
+  ],
+  '2026-07-10': [
+    { category: '정치', time: '07:10', title: '지방자치단체장 간담회, 균형발전 논의', summary: '전국 지자체장들이 모여 지역 균형발전을 위한 재정 분권 방안을 논의했다. 중앙정부의 지원 확대를 요구하는 목소리가 컸다.' },
+    { category: '경제', time: '06:50', title: '기준금리 동결, 물가 안정 우선', summary: '한국은행은 기준금리를 현 수준에서 유지하기로 결정했다. 물가 안정세가 이어지고 있으나 성장 둔화 우려도 함께 언급됐다.', hasImage: true },
+    { category: '사회', time: '07:30', title: '대중교통 요금 조정안 발표', summary: '내달부터 일부 대중교통 요금이 조정된다. 시민단체는 저소득층 부담 완화를 위한 보완책 마련을 요구하고 있다.' },
+  ],
+  '2026-07-09': [
+    { category: '경제', time: '06:30', title: '중소기업 대출 문턱 낮춘다', summary: '정부는 중소기업의 자금난 해소를 위해 정책금융 지원 규모를 확대한다고 밝혔다. 신용보증 한도도 함께 상향된다.' },
+    { category: '사회', time: '07:15', title: '여름방학 앞두고 안전교육 강화', summary: '방학을 앞두고 각 학교에서 물놀이, 교통안전 등 생활안전 교육이 강화된다. 교육청은 사고 예방을 위한 자료를 배포했다.', hasImage: true },
+    { category: '문화', time: '08:20', title: '전통시장 야시장, 여름 시즌 개장', summary: '전국 주요 전통시장에서 여름 야시장이 문을 열었다. 지역 특산물과 먹거리를 즐기려는 방문객들로 활기를 띠고 있다.' },
+  ],
+};
+
+const DATES = Object.keys(RAW).sort();
+
+const GLOSSARY = {
+  '추가경정예산안': '한 회계연도 중 이미 정한 예산을 변경해 추가로 편성하는 예산.',
+  '상임위': '국회에서 특정 분야의 안건을 상시적으로 심사하는 위원회.',
+  '재정건전성': '정부의 수입과 지출이 균형을 이루어 재정이 안정적으로 유지되는 상태.',
+  '반도체': '전기 신호를 제어·증폭하는 전자 부품으로, 각종 전자기기의 핵심 소재.',
+  '내수': '국내에서 이루어지는 소비와 생산 활동.',
+  '기준금리': '한국은행이 정하는 정책금리로, 시중 금리의 기준이 되는 지표.',
+  '신용보증': '금융기관 대출 시 상환을 보증기관이 대신 책임지는 제도.',
+  '정책금융': '정부가 특정 목적 달성을 위해 지원하는 금융 지원 제도.',
+  '균형발전': '지역 간 경제·사회적 격차를 줄이려는 발전 전략.',
+  '물가': '시장에서 거래되는 상품과 서비스의 평균적인 가격 수준.',
+  '폭염특보': '기상청이 발표하는, 심각한 고온 현상에 대한 경고.',
+  '관세': '수입품에 부과하는 세금으로, 국내 산업 보호나 무역 협상 수단으로 쓰인다.',
+  '조만장자': '보유 자산 가치가 1조 달러(약 1,400조 원) 이상인 사람을 가리키는 말.',
+  '적대적 인수': '대상 기업 경영진의 동의 없이 지분 매입 등을 통해 경영권을 확보하려는 인수 시도.',
+  '안전자산': '경제 위기나 시장 불안 시에도 가치가 비교적 안정적으로 유지되는 금, 국채, 특정 통화 등의 자산.',
+};
+const GLOSSARY_KEYS = Object.keys(GLOSSARY).sort((a, b) => b.length - a.length);
+
+function fmtLabel(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  const days = ['일','월','화','수','목','금','토'];
+  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
+}
+
+function fmtChip(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+function tokenize(text) {
+  if (!text) return [];
+  const escaped = GLOSSARY_KEYS.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const re = new RegExp(`(${escaped.join('|')})`, 'g');
+  return text.split(re).filter(p => p !== '').map(p => ({ text: p, isTerm: !!GLOSSARY[p] }));
+}
+
+function placeholderSrc(label) {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='280' height='200'>
+    <defs>
+      <pattern id='s' width='16' height='16' patternTransform='rotate(45)' patternUnits='userSpaceOnUse'>
+        <rect width='16' height='16' fill='#e4e0d6'/>
+        <rect width='8' height='16' fill='#dad5c8'/>
+      </pattern>
+    </defs>
+    <rect width='280' height='200' fill='url(#s)'/>
+    <text x='140' y='104' font-family='monospace' font-size='12' fill='#6b6b6b' text-anchor='middle'>${label}</text>
+  </svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+const state = {
+  dateIndex: DATES.length - 1,
+  category: '전체',
+  openTermKey: null,
+};
+
+function setDate(i) {
+  if (i >= 0 && i < DATES.length) {
+    state.dateIndex = i;
+    state.openTermKey = null;
+    render();
+  }
+}
+
+function setCategory(c) {
+  state.category = c;
+  state.openTermKey = null;
+  render();
+}
+
+function toggleTerm(key) {
+  state.openTermKey = state.openTermKey === key ? null : key;
+  render();
+}
+
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightboxImg').src = '';
+}
+
+function renderTokens(text, fieldKey) {
+  return tokenize(text).map((tok, ti) => {
+    if (!tok.isTerm) {
+      const span = document.createElement('span');
+      span.textContent = tok.text;
+      return span;
+    }
+    const key = `${fieldKey}-${ti}`;
+    const wrap = document.createElement('span');
+    wrap.className = 'term' + (state.openTermKey === key ? ' open' : '');
+    wrap.textContent = tok.text;
+    wrap.addEventListener('click', (e) => { e.stopPropagation(); toggleTerm(key); });
+    const tooltip = document.createElement('span');
+    tooltip.className = 'term-tooltip';
+    tooltip.textContent = GLOSSARY[tok.text];
+    wrap.appendChild(tooltip);
+    return wrap;
+  });
+}
+
+function render() {
+  const idx = state.dateIndex;
+  const iso = DATES[idx];
+  const hasPrev = idx > 0;
+  const hasNext = idx < DATES.length - 1;
+
+  document.getElementById('dateLabel').textContent = fmtLabel(iso);
+  document.getElementById('prevBtn').disabled = !hasPrev;
+  document.getElementById('nextBtn').disabled = !hasNext;
+
+  const chipsEl = document.getElementById('dateChips');
+  chipsEl.innerHTML = '';
+  DATES.forEach((d, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'date-chip' + (i === idx ? ' active' : '');
+    btn.textContent = fmtChip(d);
+    btn.addEventListener('click', () => setDate(i));
+    chipsEl.appendChild(btn);
+  });
+
+  const tabsEl = document.getElementById('categoryTabs');
+  tabsEl.innerHTML = '';
+  CATEGORIES.forEach((c) => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-tab' + (c === state.category ? ' active' : '');
+    btn.textContent = c;
+    btn.addEventListener('click', () => setCategory(c));
+    tabsEl.appendChild(btn);
+  });
+
+  const all = RAW[iso] || [];
+  const filtered = state.category === '전체' ? all : all.filter(a => a.category === state.category);
+
+  const listEl = document.getElementById('articleList');
+  const emptyEl = document.getElementById('emptyState');
+  listEl.innerHTML = '';
+
+  if (filtered.length === 0) {
+    listEl.style.display = 'none';
+    emptyEl.style.display = 'block';
+  } else {
+    listEl.style.display = 'flex';
+    emptyEl.style.display = 'none';
+
+    filtered.forEach((a, i) => {
+      const articleId = `${iso}-${i}`;
+      const imageSrc = placeholderSrc(`${a.category} 기사 사진`);
+
+      const card = document.createElement('article');
+      card.className = 'article-card';
+
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; gap:20px; align-items:flex-start;';
+
+      const textCol = document.createElement('div');
+      textCol.style.cssText = 'flex:1; min-width:0;';
+
+      const meta = document.createElement('div');
+      meta.style.cssText = 'display:flex; align-items:baseline; gap:10px; margin-bottom:8px;';
+      meta.innerHTML = `
+        <span style="font-family:'Source Serif 4',serif; font-size:11px; letter-spacing:0.15em; color:#8a1f1f; font-weight:600;">${a.category}</span>
+        <span style="font-size:11px; color:#a19c8f;">·</span>
+        <span style="font-size:12px; color:#8f8a7d;">${a.time}</span>
+      `;
+
+      const h2 = document.createElement('h2');
+      h2.style.cssText = 'font-size:24px; font-weight:700; margin:0 0 10px; line-height:1.35;';
+      renderTokens(a.title, `${articleId}-title`).forEach(n => h2.appendChild(n));
+
+      const p = document.createElement('p');
+      p.style.cssText = 'font-size:15.5px; line-height:1.75; color:#3a3a3a; margin:0; font-family:\'Source Serif 4\',serif;';
+      renderTokens(a.summary, `${articleId}-summary`).forEach(n => p.appendChild(n));
+
+      textCol.appendChild(meta);
+      textCol.appendChild(h2);
+      textCol.appendChild(p);
+      row.appendChild(textCol);
+
+      if (a.hasImage) {
+        const imgSlot = document.createElement('div');
+        imgSlot.className = 'img-slot';
+        const img = document.createElement('img');
+        img.src = imageSrc;
+        img.alt = '기사 사진';
+        const zoomBtn = document.createElement('button');
+        zoomBtn.className = 'zoom-btn';
+        zoomBtn.title = '확대 보기';
+        zoomBtn.textContent = '🔍';
+        zoomBtn.addEventListener('click', () => openLightbox(imageSrc));
+        imgSlot.appendChild(img);
+        imgSlot.appendChild(zoomBtn);
+        row.appendChild(imgSlot);
+      }
+
+      card.appendChild(row);
+      listEl.appendChild(card);
+    });
+  }
+}
+
+document.getElementById('prevBtn').addEventListener('click', () => setDate(state.dateIndex - 1));
+document.getElementById('nextBtn').addEventListener('click', () => setDate(state.dateIndex + 1));
+document.getElementById('lightbox').addEventListener('click', closeLightbox);
+document.getElementById('closeLightbox').addEventListener('click', (e) => { e.stopPropagation(); closeLightbox(); });
+document.getElementById('lightboxImg').addEventListener('click', (e) => e.stopPropagation());
+
+render();
+</script>
+</body>
+</html>
