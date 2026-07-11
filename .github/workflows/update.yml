@@ -1,0 +1,32 @@
+name: Update US Economy News
+
+on:
+  schedule:
+    - cron: '0 22 * * *'   # UTC 22:00 = 한국시간(KST) 오전 7:00
+  workflow_dispatch: {}     # 저장소 Actions 탭에서 수동으로도 실행 가능
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch and update news
+        run: python update_news.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "achim-sinbo-bot"
+          git config user.email "actions@github.com"
+          git add index.html 아침신보-artifact.html
+          git diff --cached --quiet || git commit -m "자동 업데이트: 미국경제 뉴스 (${{ github.run_id }})"
+          git push
