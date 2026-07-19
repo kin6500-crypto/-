@@ -195,6 +195,13 @@
   const CATEGORIES = ['전체', '정치', '경제', '사회', '문화', '미국경제'];
 
   const RAW = {
+    '2026-07-19': [
+      { category: '미국경제', time: "05:30 · WSJ", title: "Stocks Sink in Broad AI Rout Sparked by China's DeepSeek", summary: "U.S. stocks were mostly lower, with the Nasdaq leading declines as makers of AI infrastructure suffered steep falls, many in the double digits. Nvidia was down 16%.", hasImage: true },
+      { category: '미국경제', time: "05:50 · WSJ", title: "Comex Gold, Silver Settle Lower", summary: "Gold settled 1.4% lower, down two of the past three sessions, and silver fell 2.5%, down three of the past four sessions." },
+      { category: '미국경제', time: "06:10 · WSJ", title: "DeepSeek Won't Sink U.S. AI Titans", summary: "Panic fueling the selloff of Nvidia, Broadcom and other tech giants is overblown.", hasImage: true },
+      { category: '미국경제', time: "06:30 · WSJ", title: "Financial Services Roundup: Market Talk", summary: "Gain insight on Experian, SoFi Technologies and more in the latest Market Talks covering Financial Services." },
+    ],
+
     '2026-07-18': [
       { category: '미국경제', time: "05:30 · WSJ", title: "Stocks Sink in Broad AI Rout Sparked by China's DeepSeek", summary: "U.S. stocks were mostly lower, with the Nasdaq leading declines as makers of AI infrastructure suffered steep falls, many in the double digits. Nvidia was down 16%.", hasImage: true },
       { category: '미국경제', time: "05:50 · WSJ", title: "Comex Gold, Silver Settle Lower", summary: "Gold settled 1.4% lower, down two of the past three sessions, and silver fell 2.5%, down three of the past four sessions." },
@@ -244,25 +251,7 @@
       { category: '미국경제', time: "06:30 · WSJ", title: "Financial Services Roundup: Market Talk", summary: "Gain insight on Experian, SoFi Technologies and more in the latest Market Talks covering Financial Services." },
     ],
 
-    '2026-07-11': [
-      { category: '정치', time: '06:40', title: '국회, 하반기 예산안 심사 본격화', summary: '여야는 오늘부터 하반기 추가경정예산안 심사에 들어간다. 쟁점은 재정건전성과 민생지원 확대 규모로, 이번 주 내 상임위 통과를 목표로 협의가 이어질 예정이다.', hasImage: true },
-      { category: '경제', time: '06:20', title: '수출 3개월 연속 증가, 반도체가 견인', summary: '지난달 수출이 전년 대비 늘며 3개월 연속 증가세를 이어갔다. 반도체와 자동차 부문이 호조를 보였으나 내수 회복은 여전히 더딘 것으로 나타났다.', hasImage: true },
-      { category: '사회', time: '07:05', title: '폭염특보 확대, 전국 대부분 지역 영향', summary: '기상청은 오늘 낮 최고기온이 35도를 넘는 지역이 늘면서 폭염특보를 전국 대부분으로 확대했다. 야외활동과 농작업 시 수분 섭취 등 주의가 필요하다.' },
-      { category: '문화', time: '08:00', title: '지역 문학축제, 이번 주말 개막', summary: '전국 각지의 작가와 독자가 모이는 지역 문학축제가 이번 주말 시작된다. 낭독회, 북토크 등 다양한 프로그램이 마련됐다.' },
-      { category: '미국경제', time: '05:30 · WSJ', title: '美 증시, 중국發 AI 쇼크에 급락', summary: '중국의 저비용 AI 모델 공개 소식에 미국 증시가 크게 흔들렸다. 다만 시장 전문가들은 이번 조정이 미국 빅테크 기업들의 AI 경쟁력 자체를 흔들 정도는 아니라고 평가했다.', hasImage: true },
-      { category: '미국경제', time: '05:45 · WSJ', title: '커피 원두값, 美-콜롬비아 관세 갈등에 사상 최고치', summary: '아라비카 원두 가격이 미국과 콜롬비아 간 관세 분쟁 여파로 역대 최고 수준까지 치솟았다. 공급망 불안이 커지면서 당분간 가격 강세가 이어질 전망이다.' },
-      { category: '미국경제', time: '06:00 · Bloomberg', title: '머스크, 세계 첫 \'1조 달러\' 자산가 등극', summary: '일론 머스크가 보유 자산 가치 1조 달러를 넘어서며 역사상 첫 조만장자에 이름을 올렸다. 그는 자신이 최대주주로 있는 회사 경영권을 계속 유지하겠다는 뜻을 밝혔다.', hasImage: true },
-      { category: '미국경제', time: '06:15 · Bloomberg', title: 'SK하이닉스 美증시 데뷔, AI 반도체 사이클 향방 시험대', summary: 'SK하이닉스가 미국 증시에 상장하며 AI발 반도체 호황이 이어질지 가늠하는 시험대에 올랐다. 투자자들은 이번 상장을 AI 반도체 수요가 얼마나 지속될지에 대한 베팅으로 보고 있다.' },
-      { category: '미국경제', time: '06:30 · WSJ', title: '국제 금·은 시세, 안전자산 수요 주춤하며 동반 하락', summary: '국제 금 가격이 1.4% 내리며 최근 사흘 중 이틀 하락했고, 은 가격도 2.5% 떨어졌다. 안전자산 선호 심리가 다소 누그러진 영향으로 풀이된다.' },
-      { category: '미국경제', time: '06:45 · WSJ', title: '스위스 프랑·엔화 강세, AI發 증시 불안에 안전자산 부각', summary: '중국발 AI 기술주 매도 여파로 투자자들이 위험자산을 피해 스위스 프랑과 일본 엔 등 전통적 안전자산 통화로 이동하고 있다.' },
-      { category: '미국경제', time: '07:00 · WSJ', title: '건자재 유통업체 QXO, 비콘에 적대적 인수 제안', summary: '건설자재 유통업체 QXO가 경쟁사 비콘 이사회의 동의 없이 인수를 추진하며 적대적 인수전에 나섰다. 업계 재편 여부에 관심이 쏠린다.', hasImage: true },
-      { category: '미국경제', time: '07:15 · Bloomberg', title: '에니 CEO "글로벌 에너지 위기, 단기적으로 더 악화될 수도"', summary: '이탈리아 에너지기업 에니의 최고경영자가 재고 감소와 공급 경쟁 심화를 이유로 국제 에너지 시장 상황이 당분간 더 나빠질 수 있다고 경고했다.' },
-          { category: '미국경제', time: "05:30 · WSJ", title: "Stocks Sink in Broad AI Rout Sparked by China's DeepSeek", summary: "U.S. stocks were mostly lower, with the Nasdaq leading declines as makers of AI infrastructure suffered steep falls, many in the double digits. Nvidia was down 16%.", hasImage: true },
-      { category: '미국경제', time: "05:50 · WSJ", title: "Comex Gold, Silver Settle Lower", summary: "Gold settled 1.4% lower, down two of the past three sessions, and silver fell 2.5%, down three of the past four sessions." },
-      { category: '미국경제', time: "06:10 · WSJ", title: "DeepSeek Won't Sink U.S. AI Titans", summary: "Panic fueling the selloff of Nvidia, Broadcom and other tech giants is overblown.", hasImage: true },
-      { category: '미국경제', time: "06:30 · WSJ", title: "Financial Services Roundup: Market Talk", summary: "Gain insight on Experian, SoFi Technologies and more in the latest Market Talks covering Financial Services." },
-],
-          };
+              };
 
   const DATES = Object.keys(RAW).sort();
 
